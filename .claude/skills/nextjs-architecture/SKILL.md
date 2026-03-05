@@ -1,10 +1,10 @@
 ---
-name: nextjs-starshop
-description: StarShop Next.js project conventions. Apply when writing, reviewing, or modifying any code in this repository — components, API routes, forms, state, types, and pages.
+name: nextjs-architecture
+description: Next.js project conventions. Apply when writing, reviewing, or modifying any code in this repository — components, API routes, forms, state, types, and pages.
 user-invocable: false
 ---
 
-# StarShop Next.js Conventions
+# Next.js Architecture Conventions
 
 ## Project Stack
 - **Next.js 15** App Router + TypeScript + Tailwind CSS v4
@@ -20,9 +20,9 @@ user-invocable: false
 
 ## User Types & Auth
 Three user roles enforced in `middleware.ts` via `token` + `user` cookies:
-- **Public** — unauthenticated, routes: `/`, `/products`, `/news`, etc.
+- **Public** — unauthenticated, public-facing routes
 - **Admin** (`userType: 1`) — `/admin/*`
-- **FC / Franchise** (`userType: 2`) — `/fc/*`
+- **Member / Partner** (`userType: 2`) — `/fc/*`
 
 No manual auth checks needed in pages — middleware handles redirection.
 
@@ -45,7 +45,7 @@ import { api } from "../../lib/api/api.gateway";   // Bad
 | Components | PascalCase + suffix | `ProductItemComponent.tsx` |
 | Hooks | `use` prefix | `useAuthStore.ts` |
 | Types | Domain scoped | `types/admin/order.type.ts` |
-| Zod schemas | Domain scoped | `lib/schema/fc/basicInfo.schema.ts` |
+| Zod schemas | Domain scoped | `lib/schema/<section>/<name>.schema.ts` |
 
 ---
 
@@ -141,14 +141,14 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 ### Props Pattern
 ```tsx
-import { Product } from "@/types/dashboard/products";
+import { Item } from "@/types/<domain>/index";
 
 interface Props {
-  product: Product;
+  item: Item;
   onClick?: () => void;
 }
 
-export default function ProductItemComponent({ product, onClick }: Props) { ... }
+export default function ItemComponent({ item, onClick }: Props) { ... }
 ```
 
 ### Conditional Classes
@@ -165,12 +165,12 @@ import { cn } from "@/lib/utils";
 ```ts
 import { z } from "zod";
 
-export const basicInfoSchema = z.object({
+export const exampleSchema = z.object({
   firstName: z.string().min(1, "Required"),
   email: z.string().email("Invalid email"),
 });
 
-export type BasicInfoFormValues = z.infer<typeof basicInfoSchema>;
+export type ExampleFormValues = z.infer<typeof exampleSchema>;
 ```
 
 ### Form Component Pattern
@@ -178,12 +178,12 @@ export type BasicInfoFormValues = z.infer<typeof basicInfoSchema>;
 "use client";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { basicInfoSchema, BasicInfoFormValues } from "@/lib/schema/fc/basicInfo.schema";
+import { exampleSchema, ExampleFormValues } from "@/lib/schema/<section>/<name>.schema";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 
-export default function BasicInfoForm() {
-  const form = useForm<BasicInfoFormValues>({
-    resolver: zodResolver(basicInfoSchema),
+export default function ExampleForm() {
+  const form = useForm<ExampleFormValues>({
+    resolver: zodResolver(exampleSchema),
     defaultValues: { firstName: "", email: "" },
   });
 
@@ -264,18 +264,18 @@ Place types in `types/` by domain:
 types/
   api/api-response.ts      ← ApiResponse<T> wrapper
   admin/<domain>.type.ts   ← Admin-only types
-  fc/<domain>.type.ts      ← FC-only types
+  member/<domain>.type.ts  ← Member/partner-only types
   orders/index.ts          ← Shared domain types
   customers/index.ts
 ```
 
 Export payload, response, and status variants together:
 ```ts
-// types/admin/news.type.ts
-export interface NewsItem { ... }
-export interface NewsPayload { ... }
-export interface NewsResponse { ... }
-export interface NewsStatus { ... }
+// types/admin/<domain>.type.ts
+export interface DomainItem { ... }
+export interface DomainPayload { ... }
+export interface DomainResponse { ... }
+export interface DomainStatus { ... }
 ```
 
 Avoid `any` — if unavoidable: `// eslint-disable-next-line @typescript-eslint/no-explicit-any`
@@ -288,9 +288,9 @@ Avoid `any` — if unavoidable: `// eslint-disable-next-line @typescript-eslint/
 ```
 app/
   page.tsx                 ← Public home
-  layout.tsx               ← Root layout (fonts, providers, GTM)
+  layout.tsx               ← Root layout (fonts, providers, analytics)
   admin/layout.tsx         ← Admin shell
-  fc/layout.tsx            ← FC portal shell
+  [portal]/layout.tsx      ← Authenticated portal shell
   api/                     ← Thin proxy route handlers
 ```
 
@@ -318,10 +318,8 @@ export default function NewsDetailPage({ params }: { params: { slug: string } })
 ### Providers
 Add new global providers to `app/provider.tsx` — not in individual layouts.
 
-### Fonts (CSS variables, set in `app/layout.tsx`)
-- `--font-geist-sans`, `--font-geist-mono`
-- `--font-noto-sans-jp` (Japanese text)
-- `--font-cormorant-infant` (decorative headings)
+### Fonts
+Define CSS variables in `app/layout.tsx` and apply them via Tailwind or inline styles.
 
 ---
 
