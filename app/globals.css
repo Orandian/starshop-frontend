@@ -1,0 +1,412 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-tertiary: var(--tertiary);
+  --color-disabled: var(--disabled);
+  --color-additional: var(--additional);
+  --color-dark: var(--dark);
+  --color-black: var(--black);
+  --color-white: var(--white);
+  --color-white-bg: var(--white-bg);
+  --color-dark-bg: var(--dark-bg);
+  --color-error: var(--error);
+  --color-foreground: var(--foreground);
+  --color-alink: var(--alink);
+  --color-product-card-btn: var(--product-card-btn);
+  --color-required: var(--required);
+}
+
+:root{
+  --primary: #9399D4;
+  --secondary: #F5679B;
+  --tertiary: #50D88D;
+  --additional: #9399D4;
+  --disabled: #6D706F;
+  --dark: #434343;
+  --black: #000000;
+  --white: #FFFFFF;
+  --white-bg: #EEEEEE;
+  --dark-bg: #D9D9D9;
+  --error: #FF0000;
+  --sidebar: hsl(0 0% 98%);
+  --sidebar-foreground: hsl(240 5.3% 26.1%);
+  --sidebar-primary: hsl(240 5.9% 10%);
+  --sidebar-primary-foreground: hsl(0 0% 98%);
+  --sidebar-accent: hsl(240 4.8% 95.9%);
+  --sidebar-accent-foreground: hsl(240 5.9% 10%);
+  --sidebar-border: hsl(220 13% 91%);
+  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+  --foreground: #F6F6F6;
+  --alink: #3020E0;
+  --product-card-btn: #A99577;
+  --required: #FF0000;
+}
+
+/* Font settings */
+.font-noto {
+  font-family: var(--font-noto-sans-jp), sans-serif;
+}
+
+/* .font-shippori {
+  font-family: var(--font-shippori-mincho), serif;
+} */
+
+.font-cormorant {
+  font-family: var(--font-cormorant-infant), serif;
+}
+
+@layer utilities {
+  /* Container */
+  .container {
+    @apply max-w-[1200px] mx-auto;
+  }
+
+  /* Text Decoration */
+  .text-small {
+    @apply text-[10px] font-normal;
+  }
+  .text-normal {
+    @apply text-xs font-normal;
+  }
+  .text-base {
+    @apply text-base font-normal;
+  }
+  .text-price {
+    @apply text-lg font-semibold;
+  }
+  .text-large {
+    @apply text-xl font-semibold;
+  }
+  .text-xlarge {
+    @apply text-2xl font-semibold;
+  }
+  .text-xxlarge {
+    @apply text-3xl font-semibold;
+  }
+  .text-para {
+    @apply text-xs font-normal tracking-widest leading-6;
+  }
+
+  /* Layout */
+  .flex-row-start {
+    @apply flex justify-start;
+  }
+  .flex-row-items-start {
+    @apply flex items-start;
+  }
+  .flex-row-end {
+    @apply flex justify-end;
+  }
+  .flex-row-items-end {
+    @apply flex items-end;
+  }
+  .flex-row-center {
+    @apply flex items-center;
+  }
+  .flex-row-between {
+    @apply flex justify-between items-center;
+  }
+  .flex-col-start {
+    @apply flex flex-col justify-start;
+  }
+  .flex-col-end {
+    @apply flex flex-col justify-end;
+  }
+  .flex-col-center {
+    @apply flex flex-col items-center;
+  }
+  .flex-col-between {
+    @apply flex flex-col justify-between items-center;
+  }
+
+  /* Border Decoration */
+  .card-border {
+    @apply border border-white-bg;
+  }
+  .philo-title {
+    @apply text-base md:text-lg font-medium tracking-wider leading-10 text-[#a7834d];
+  }
+  .philo-title2 {
+    @apply text-base md:text-lg font-medium tracking-wider leading-7 text-[#a7834d]
+  }
+  .philo-title2 span {
+    @apply inline-block;
+  }
+  .philo-para {
+    @apply text-xs md:text-sm font-medium tracking-wider leading-7 text-[#4d4d4d];
+  }
+}
+
+@layer base {
+  /* Text Decorations */
+  h1 {
+    @apply text-2xl font-semibold;
+  }
+  h2 {
+    @apply text-xl font-semibold;
+  }
+  h3 {
+    @apply text-lg font-semibold;
+  }
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;             /* Chrome, Safari, Opera */
+}
+
+.dark {
+  --sidebar: hsl(240 5.9% 10%);
+  --sidebar-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-primary: hsl(224.3 76.3% 48%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(240 3.7% 15.9%);
+  --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-border: hsl(240 3.7% 15.9%);
+  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+}
+
+@theme inline {
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+html {
+  font-family: "Yu Gothic", YuGothic, sans-serif;
+}
+
+.no-visible-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+}
+ 
+.no-visible-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.polygon-right{
+ clip-path: polygon(75% 0%, 90% 50%, 75% 100%, 0% 100%, 15% 50%, 0% 0%);
+}
+
+.header {
+  height: 45px;
+  line-height: 45px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 9999;
+  display: block;
+  margin: 0;
+  width: 100%;
+  min-width: 1024px;
+  height: 48px;
+  max-height: 44px;
+  background: rgba(221, 221, 221, 0.92);
+  font-size: 17px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  padding-left: 60px;
+}
+.follow {
+  float: right;
+  margin-right: 79px;
+}
+.follow img {
+  width: 25px;
+  position: relative;
+  top: 7px;
+}
+
+
+
+.follow a {
+  color: #131313;
+  text-decoration: none;
+}
+
+.org-tree ul {
+  padding-top: 20px;
+  position: relative;
+
+  transition: all 0.5s;
+  -webkit-transition: all 0.5s;
+  -moz-transition: all 0.5s;
+}
+
+.org-tree li {
+  float: left;
+  text-align: center;
+  list-style-type: none;
+  position: relative;
+  padding: 20px 5px 0 5px;
+
+  transition: all 0.5s;
+  -webkit-transition: all 0.5s;
+  -moz-transition: all 0.5s;
+}
+
+/*We will use ::before and ::after to draw the connectors*/
+
+.org-tree li::before,
+.org-tree li::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 50%;
+  border-top: 1px solid #ccc;
+  width: 50%;
+  height: 20px;
+}
+.org-tree li::after {
+  right: auto;
+  left: 50%;
+  border-left: 1px solid #ccc;
+}
+
+.org-tree li:only-child::after,
+.org-tree li:only-child::before {
+  display: none;
+}
+
+.org-tree li:only-child {
+  padding-top: 0;
+}
+
+.org-tree li:first-child::before,
+.org-tree li:last-child::after {
+  border: 0 none;
+}
+
+.org-tree li:last-child::before {
+  border-right: 1px solid #ccc;
+  border-radius: 0 5px 0 0;
+  -webkit-border-radius: 0 5px 0 0;
+  -moz-border-radius: 0 5px 0 0;
+}
+.org-tree li:first-child::after {
+  border-radius: 5px 0 0 0;
+  -webkit-border-radius: 5px 0 0 0;
+  -moz-border-radius: 5px 0 0 0;
+}
+
+.org-tree ul ul::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  border-left: 1px solid #ccc;
+  width: 0;
+  height: 20px;
+}
+
+.org-tree li a {
+  border: 1px solid #ccc;
+  padding: 5px 10px;
+  text-decoration: none;
+  color: #666;
+  font-family: arial, verdana, tahoma;
+  font-size: 11px;
+  display: inline-block;
+
+  border-radius: 5px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+
+  transition: all 0.5s;
+  -webkit-transition: all 0.5s;
+  -moz-transition: all 0.5s;
+}
+
+.org-tree li a:hover,
+.org-tree li a:hover + ul li a {
+  background: #c8e4f8;
+  color: #000;
+  border: 1px solid #94a0b4;
+}
+
+.org-tree li a:hover + ul li::after,
+.org-tree li a:hover + ul li::before,
+.org-tree li a:hover + ul::before,
+.org-tree li a:hover + ul ul::before {
+  border-color: #94a0b4;
+}
+
+.card {
+  position: relative;
+  /* width: 300px; */
+}
+
+.card .image {
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: -10px;
+  z-index: 100;
+}
+.card .image img {
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+}
+.card .card-body {
+  background: #fff;
+  height: 56px;
+  text-align: center;
+  width: 300px;
+  padding-top: 60px;
+  border-radius: 16px;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  position: relative;
+  z-index: -1;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.card .card-body h2 {
+  font-weight: 600;
+  line-height: 20px;
+}
+.card .card-body p {
+  line-height: 20px;
+  font-size: small;
+}
+.card .card-footer {
+  padding: 3px;
+  background: #96f6b7;
+  text-align: center;
+  bottom: 0;
+  position: relative;
+  width: 295px;
+  border-radius: 16px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  z-index: -1;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.card .card-footer img {
+  width: 25px;
+  margin: 5px;
+}

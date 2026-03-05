@@ -1,0 +1,82 @@
+---
+description: Rules for creating and modifying React components
+globs: components/**/*.tsx, app/**/*.tsx
+alwaysApply: false
+---
+
+# Component Conventions
+
+## Directory Layout
+```
+components/
+  ui/           ← shadcn/ui primitives (Button, Input, Dialog, etc.) — do not modify unless upgrading
+  admin/        ← Admin dashboard-specific components
+  app/          ← Shared app-wide components
+    public/     ← Public-facing section components
+  layouts/      ← Layout wrappers
+  home/         ← Home page sections
+  mail/         ← Email templates (@react-email)
+  pdf/          ← PDF generation
+  profile/      ← User profile components
+  footer/       ← Footer components
+```
+
+## Layout Components
+Use the appropriate layout wrapper from `components/layouts/`:
+- `PublicLayout` — public-facing pages with header/footer
+- `AdminLayout` — admin dashboard shell
+- `SectionLayout` — consistent section padding/max-width
+- `PublicDetailsLayout` — detail page with back navigation
+- `ComponentLayout` — component showcase pages
+
+## shadcn/ui Usage
+Always import base UI primitives from `@/components/ui/`:
+```tsx
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
+```
+
+Do **not** install new Radix primitives directly — add them as shadcn components to `components/ui/` instead.
+
+## Client vs Server Components
+- Default to **Server Components** in `app/` pages
+- Add `"use client"` only when the component uses: `useState`, `useEffect`, event handlers, browser APIs, or React Query hooks
+- Keep data-fetching logic in server components or React Query hooks; keep UI interactivity in client components
+
+## Naming
+- Files: `PascalCase` with a descriptive suffix — `ProductItemComponent.tsx`, `DashboardCardComponent.tsx`
+- Component function: matches the file name
+```tsx
+// File: components/app/public/ProductItemComponent.tsx
+export default function ProductItemComponent({ ... }) { ... }
+```
+
+## Props
+- Always define a TypeScript interface or type for props
+- Import shared types from `@/types/` rather than re-defining inline
+
+```tsx
+import { Product } from "@/types/dashboard/products";
+
+interface Props {
+  product: Product;
+  onClick?: () => void;
+}
+
+export default function ProductItemComponent({ product, onClick }: Props) { ... }
+```
+
+## Styling
+- Use Tailwind CSS utility classes
+- Use `cn()` from `@/lib/utils` to conditionally merge class names:
+```tsx
+import { cn } from "@/lib/utils";
+<div className={cn("base-classes", isActive && "active-class")} />
+```
+
+## Icons
+Use `lucide-react` for icons:
+```tsx
+import { ShoppingCart, ChevronRight } from "lucide-react";
+```

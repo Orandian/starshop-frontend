@@ -1,0 +1,52 @@
+---
+description: General project conventions for the StarShop Next.js frontend
+alwaysApply: true
+---
+
+# StarShop Frontend — Project Conventions
+
+## Tech Stack
+- **Next.js 15** (App Router) + TypeScript + Tailwind CSS v4
+- **Zustand** for global state, **TanStack React Query** for server state
+- **React Hook Form** + **Zod** for forms and validation
+- **shadcn/ui** (Radix UI) in `components/ui/` for base primitives
+- **Axios** via `lib/api/api.gateway.ts` for all external API calls
+- **Sonner** for toast notifications
+
+## Imports
+Always use the `@/` path alias. Never use relative `../` imports across feature boundaries.
+
+```ts
+// Good
+import { api } from "@/lib/api/api.gateway";
+import { Button } from "@/components/ui/button";
+
+// Bad
+import { api } from "../../lib/api/api.gateway";
+```
+
+## User Types
+The app has three user contexts — route access is enforced in `middleware.ts`:
+- **Public** — unauthenticated, `/` and public pages
+- **Admin** (`userType: 1`) — `/admin/*`
+- **FC / Franchise** (`userType: 2`) — `/fc/*`
+
+## File Naming
+- Pages and layouts: `page.tsx`, `layout.tsx` (Next.js convention)
+- Components: PascalCase with a descriptive suffix — `ProductItemComponent.tsx`, `DashboardCardComponent.tsx`
+- Hooks: camelCase prefixed with `use` — `useAuthStore.ts`, `useTeam.ts`
+- Types: domain-scoped files under `types/` — `types/orders/index.ts`, `types/admin/order.type.ts`
+- Zod schemas: `lib/schema/<section>/<name>.schema.ts`
+
+## TypeScript
+- Always type API payloads and responses; import types from `types/`
+- Use `ApiResponse<T>` from `@/types/api/api-response` as the standard wrapper
+- Avoid `any`; if unavoidable, add `// eslint-disable-next-line @typescript-eslint/no-explicit-any`
+
+## Notifications
+Use `sonner` toast for user feedback:
+```ts
+import { toast } from "sonner";
+toast.success("Saved successfully");
+toast.error("Something went wrong");
+```

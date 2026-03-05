@@ -1,0 +1,86 @@
+---
+description: Rules for Next.js App Router pages, layouts, and API routes
+globs: app/**/*.ts, app/**/*.tsx
+alwaysApply: false
+---
+
+# Next.js App Router Conventions
+
+## Page Structure
+```
+app/
+  page.tsx              ← public home page
+  layout.tsx            ← root layout (fonts, providers, GTM)
+  admin/
+    layout.tsx          ← admin shell layout
+    page.tsx            ← admin index (redirects to /admin/dashboard)
+    [feature]/
+      page.tsx
+      [slug]/page.tsx   ← dynamic detail page
+  fc/
+    layout.tsx
+    page.tsx
+    [feature]/page.tsx
+  api/                  ← Next.js API route handlers
+    admin/[...]/route.ts
+    user/[...]/route.ts
+    auth/[...]/route.ts
+```
+
+## Route Handlers (`app/api/`)
+The Next.js API routes are thin proxies/middleware — keep business logic in `lib/api/routes/`. Use `NextResponse` for responses.
+
+```ts
+// app/api/admin/products/route.ts
+import { NextResponse } from "next/server";
+import { apiRoutes } from "@/lib/api/api.route";
+
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const page = Number(searchParams.get("page") ?? 1);
+  const data = await apiRoutes.admin.product.getAllProducts({ page, ... });
+  return NextResponse.json(data);
+}
+```
+
+## Authentication & Middleware
+- Auth state is in cookies: `token` (JWT) and `user` (JSON with `userType`)
+- `middleware.ts` guards `/admin/*` and `/fc/*` — no manual auth checks needed in pages
+- `userType: 1` = Admin, `userType: 2` = FC
+- Supabase auth helpers live in `utils/supabase/`
+
+## State Management in Pages
+- Use **React Query** for server state (fetching, caching, mutations)
+- Use **Zustand** (`store/useAuthStore.ts`) for global client state (user session, sign-up flow)
+- Initialize the auth store in a `useEffect` on app load:
+```ts
+const { initialize } = useUserStore();
+useEffect(() => { initialize(); }, []);
+```
+
+## Providers
+Global providers are in `app/provider.tsx` — add new providers there (React Query, theme, etc.), not in individual layouts.
+
+## Dynamic Routes
+- Segment params are typed via `{ params: { slug: string } }` in page props
+- Use `generateMetadata` for per-page SEO metadata
+
+```tsx
+// app/news/[slug]/page.tsx
+export default function NewsDetailPage({ params }: { params: { slug: string } }) {
+  const { slug } = params;
+  // ...
+}
+```
+
+## Loading & Error States
+- Use Next.js `loading.tsx` for skeleton states at the route level
+- Wrap async data with `<SuspenseWrapper>` from `components/wrapper/SuspenseWrapper.tsx` where needed
+- Redirect to `/error` page on unrecoverable errors
+
+## Fonts
+Four CSS variables are available globally (set in `app/layout.tsx`):
+- `--font-geist-sans`
+- `--font-geist-mono`
+- `--font-noto-sans-jp` (for Japanese text)
+- `--font-cormorant-infant` (for decorative headings)

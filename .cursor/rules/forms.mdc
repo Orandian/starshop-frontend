@@ -1,0 +1,96 @@
+---
+description: Rules for building forms with React Hook Form and Zod
+globs: app/**/*.tsx, components/**/*.tsx, lib/schema/**/*.ts
+alwaysApply: false
+---
+
+# Form Conventions
+
+## Stack
+All forms use **React Hook Form** + **Zod** via `@hookform/resolvers/zod`.
+
+## Schema Location
+Place Zod schemas in `lib/schema/` organised by section:
+```
+lib/schema/
+  fc/
+    basicInfo.schema.ts
+    billingInfo.schema.ts
+  index.ts   ← re-exports
+```
+
+## Schema Pattern
+```ts
+// lib/schema/fc/basicInfo.schema.ts
+import { z } from "zod";
+
+export const basicInfoSchema = z.object({
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+  email: z.string().email("Invalid email address"),
+});
+
+export type BasicInfoFormValues = z.infer<typeof basicInfoSchema>;
+```
+
+## Form Component Pattern
+```tsx
+"use client";
+
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { basicInfoSchema, BasicInfoFormValues } from "@/lib/schema/fc/basicInfo.schema";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+
+export default function BasicInfoForm() {
+  const form = useForm<BasicInfoFormValues>({
+    resolver: zodResolver(basicInfoSchema),
+    defaultValues: { firstName: "", lastName: "", email: "" },
+  });
+
+  const onSubmit = async (values: BasicInfoFormValues) => {
+    // call apiRoutes.* here
+  };
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)}>
+        <FormField
+          control={form.control}
+          name="firstName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>First Name</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button type="submit">Submit</Button>
+      </form>
+    </Form>
+  );
+}
+```
+
+## Submission Error Handling
+Surface API errors as form-level errors using `form.setError`:
+```ts
+try {
+  await apiRoutes.public.signup(values);
+} catch (error) {
+  if (error instanceof ApiError) {
+    form.setError("root", { message: error.message });
+    // or toast.error(error.message);
+  }
+}
+```
+
+## Rules
+- Always co-locate schema with the form's domain section under `lib/schema/`
+- Use `z.infer<typeof schema>` to derive the TypeScript type — do not define separate interfaces
+- Use shadcn `Form`, `FormField`, `FormItem`, `FormLabel`, `FormControl`, `FormMessage` wrappers for consistent styling and accessibility

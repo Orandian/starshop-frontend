@@ -1,0 +1,27 @@
+/* slick-dots */
+.slick-dots {
+  bottom: 20px !important;
+}
+.slick-dots li {
+  margin: 4 !important;
+}
+.slick-dots li button:before {
+  font-size: 14px !important;
+  opacity: 1 !important;
+  color: #d9d9d9 !important;
+}
+.slick-dots li.slick-active button:before {
+  color: #000 !important;
+}
+@media screen and (max-width: 767px) {
+  /* slick-dots */
+  .slick-dots li {
+    width: 15px;
+    height: 15px;
+  }
+  .slick-dots li button:before {
+    font-size: 10px !important;
+    width: 15px;
+    height: 15px;
+  }
+}

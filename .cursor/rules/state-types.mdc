@@ -1,0 +1,99 @@
+---
+description: Rules for state management and TypeScript types
+globs: store/**/*.ts, types/**/*.ts, hooks/**/*.ts
+alwaysApply: false
+---
+
+# State Management & Types
+
+## Zustand Stores
+Stores live in `store/`. The main store is `store/useAuthStore.ts` (`useUserStore`).
+
+### Creating a New Store
+```ts
+// store/useExampleStore.ts
+import { create } from "zustand";
+
+interface ExampleState {
+  items: Item[];
+  setItems: (items: Item[]) => void;
+  reset: () => void;
+}
+
+export const useExampleStore = create<ExampleState>((set) => ({
+  items: [],
+  setItems: (items) => set({ items }),
+  reset: () => set({ items: [] }),
+}));
+```
+
+Keep stores small and domain-scoped. Do not put server-fetched data in Zustand — use React Query for that.
+
+## React Query
+Use `@tanstack/react-query` for all API data fetching.
+
+### Query Key Convention
+Use descriptive array keys that mirror the API route hierarchy:
+```ts
+["admin", "products", page, pageSize, filters]
+["admin", "orders", orderId]
+["public", "news", page]
+```
+
+### Mutation Pattern
+```ts
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRoutes } from "@/lib/api/api.route";
+import { toast } from "sonner";
+
+const queryClient = useQueryClient();
+
+const { mutate, isPending } = useMutation({
+  mutationFn: (payload: CreatePayload) => apiRoutes.admin.news.createNews(payload),
+  onSuccess: () => {
+    toast.success("Created successfully");
+    queryClient.invalidateQueries({ queryKey: ["admin", "news"] });
+  },
+  onError: (error: ApiError) => {
+    toast.error(error.message);
+  },
+});
+```
+
+## TypeScript Types
+Types are organised under `types/` by domain:
+```
+types/
+  api/api-response.ts     ← ApiResponse<T> wrapper
+  auth/index.ts
+  admin/
+    order.type.ts
+    brand.type.ts
+    ...
+  fc/
+    user.type.ts
+    order.type.ts
+    ...
+  orders/index.ts
+  customers/index.ts
+  products/index.ts
+```
+
+### Rules
+- Place types in the closest matching domain folder
+- For admin-only types use `types/admin/`; for FC-only types use `types/fc/`
+- Shared/cross-domain types go in `types/<domain>/index.ts`
+- Always export both the type and any related payload/response variants:
+```ts
+// types/admin/news.type.ts
+export interface NewsItem { ... }
+export interface NewsPayload { ... }
+export interface NewsResponse { ... }
+export interface NewsStatus { ... }
+```
+
+## Custom Hooks
+Place domain-specific hooks in `hooks/`:
+- `hooks/admin/useTeam.ts`
+- Follow the naming pattern `use<Domain><Feature>.ts`
+- Hooks should wrap React Query calls and return `{ data, isLoading, error, mutate }`

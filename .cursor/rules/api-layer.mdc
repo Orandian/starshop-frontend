@@ -1,0 +1,88 @@
+---
+description: Rules for adding or modifying API routes and the API gateway layer
+globs: lib/api/**/*.ts
+alwaysApply: false
+---
+
+# API Layer Conventions
+
+## Structure
+All backend calls are centralised in `lib/api/`:
+
+```
+lib/api/
+  api.gateway.ts        ← Axios client + interceptors (do not modify unless necessary)
+  api.route.ts          ← Aggregates all route files
+  routes/
+    public.route.ts     ← Unauthenticated endpoints (/pub/*)
+    admin.route.ts      ← Admin endpoints (/admin/*)
+    fc.route.ts         ← FC portal endpoints (/fc/*)
+    user.route.ts       ← Authenticated user endpoints (/user/*)
+```
+
+## Adding a New Endpoint
+1. Add the function to the correct route file (grouped into a const API object, e.g. `productAPI`, `newsAPI`).
+2. Export it via the section's route aggregator object at the bottom of the file.
+3. Do **not** make `axios` calls directly in components or pages — always go through the route files.
+
+```ts
+// lib/api/routes/admin.route.ts
+const newsAPI = {
+  getNews: (page: number, pageSize: number) =>
+    api.get<NewsResponse>(`/admin/news`, { params: { page, pageSize } }),
+};
+
+export const adminRoutes = {
+  news: newsAPI,
+  // ...
+};
+```
+
+## Using the API in Components
+```ts
+import { apiRoutes } from "@/lib/api/api.route";
+
+// In a React Query hook
+const { data } = useQuery({
+  queryKey: ["news", page],
+  queryFn: () => apiRoutes.admin.news.getNews(page, 10),
+});
+```
+
+## Typing Pattern
+Always provide both payload type `T` and response type `R`:
+```ts
+api.post<CreateRequest, CreateResponse>("/admin/products", data)
+api.get<ProductListResponse>("/admin/products", { params })
+api.put<UpdateRequest, UpdateResponse>(`/admin/products/${id}`, data)
+api.patch<StatusPayload, StatusResponse>("/admin/products/status", payload)
+api.delete<ApiResponse<null>>(`/admin/products/${id}`)
+```
+
+## Error Handling
+The gateway automatically:
+- Attaches the Bearer token from cookies
+- Redirects to `/login` on 401/403 responses
+
+In components, catch `ApiError` for user-facing messages:
+```ts
+import { ApiError } from "@/lib/api/api.gateway";
+
+try {
+  await apiRoutes.admin.news.createNews(payload);
+} catch (error) {
+  if (error instanceof ApiError) {
+    toast.error(error.message);
+  }
+}
+```
+
+## File Uploads
+Use `putObjects` from `lib/api/aws/putObjects.ts` to upload files to S3 first, then save the returned URL to the backend:
+```ts
+import { putObjects, Photo } from "@/lib/api/aws/putObjects";
+
+const photos: Photo[] = files.map(file => ({ id: Date.now(), file, imgUrl: "" }));
+const uploaded = await putObjects(`products/${productId}`, photos);
+// uploaded[n].imgUrl contains the S3 URL
+```
